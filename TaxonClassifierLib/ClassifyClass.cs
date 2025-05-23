@@ -11,6 +11,8 @@ namespace TaxonClassifierLib
             JObject result = new JObject();
             JObject classes = new JObject();
 
+            // Some new code
+
             return result;
         }
     }
