@@ -1,7 +1,7 @@
 # dllFile needs to be the full path to the .dll
 $dllFile = "C:\Users\Brian\source\repos\TaxonClassifierLib\TaxonClassifierLib\bin\Debug\net8.0\TaxonClassifierLib.dll"
-$os2kleFile = ".\OS2KLE.json"
-$os2kle_lookupFile = ".\OS2KLE_lookup.json"
+$os2kleFile = "C:\Users\Brian\Projects\Open_Source_TaxonClassifier\OS2KLE.json"
+$os2kle_lookupFile = "C:\Users\Brian\Projects\Open_Source_TaxonClassifier\OS2KLE_lookup.json"
 
 $text = "hul hul hul vej vej rotte"
 
