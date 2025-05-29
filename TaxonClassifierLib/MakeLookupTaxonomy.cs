@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace TaxonClassifierLib
 {
-    internal class MakeLookupTaxonomy
+    internal class MakeLookupTaxonomyClass
     {
         public static string makeLookupTaxonomy(string json)
         {
@@ -118,6 +118,9 @@ namespace TaxonClassifierLib
                     if (taxonomy["classes"][classid]["includeClass"].ToString() != "")
                     {
                         string includeClass_string = taxonomy["classes"][classid]["includeClass"].ToString();
+
+                        // TODO: Handle including multiple class. 
+                        // Below is the original PHP code
                         /*				
                                                 includeClasses = preg_split("/\|/u", $includeClass_string, -1, PREG_SPLIT_DELIM_CAPTURE);
 
@@ -154,7 +157,7 @@ namespace TaxonClassifierLib
 
                     foreach (JProperty term in (JToken)taxonomy["classes"][classid]["terms"])
                     {
-                        // Make the title lower case for later comparison in Taxon (classify.php)
+                        // Make the title lower case for later comparison in TaxonClassifier
                         string termTitle = term.Value["title"].ToString();
                         string termTitle_lc = termTitle.ToLower();
 
@@ -221,6 +224,7 @@ namespace TaxonClassifierLib
                             {
                                 if (term.Value["suffix"].ToString() != "")
                                 {
+                                    // 
                                     /*
                                                                         // Ensure the minimal suffix
                                                                         suffix_old = explode("|", $terms_lookup[$term['title']][$setting_names[$mode]['term']['suffix']]);
