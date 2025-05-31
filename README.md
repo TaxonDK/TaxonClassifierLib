@@ -17,7 +17,7 @@ The resulting JSON string is used when calling classifyText
 where settings is a Dictionary<string, string>
 
 >   PowerShell: $settings = [System.Collections.Generic.Dictionary[string,string]]::new()
->   C#: Dictionary<string,string> settings = new Dictionary<string,string>();
+   C#: Dictionary<string,string> settings = new Dictionary<string,string>();
 
 ## Demo PowerShell script
 The TaxonClassiferLib_Demo.ps1 is a PowerShell script for demonstrating the process of classifying a text with a taxonomy. The default taxonomy is the OS2KLE (see https://github.com/os2kle/os2kle).
