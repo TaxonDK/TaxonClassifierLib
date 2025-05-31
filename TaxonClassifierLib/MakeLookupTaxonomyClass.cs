@@ -224,7 +224,7 @@ namespace TaxonClassifierLib
                             {
                                 if (term.Value["suffix"].ToString() != "")
                                 {
-                                    // 
+                                    // Some old PHP code to handle the suffixes when a term is in more than 1 class. The suffix may be different in the 2 classes.
                                     /*
                                                                         // Ensure the minimal suffix
                                                                         suffix_old = explode("|", $terms_lookup[$term['title']][$setting_names[$mode]['term']['suffix']]);

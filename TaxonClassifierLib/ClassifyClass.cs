@@ -40,8 +40,6 @@ namespace TaxonClassifierLib
             // We expect everything to go well
             result["status"] = "OK";
 
-            // Remove HTML "chars"
-            //            text = Regex.Replace(text, "&[a-z]{2,5};", " ", RegexOptions.IgnoreCase);
             text = HttpUtility.HtmlDecode(text);
 
             // Remove all non-letters
@@ -50,6 +48,7 @@ namespace TaxonClassifierLib
             text = Regex.Replace(text, "[^" + skip_letters + "]+", " ", RegexOptions.IgnoreCase);
             text = Regex.Replace(text, "[ ]+", " ");
 
+            // Only classify the first 50.000 chars in the text. It is approx. 20 A4 pages.
             if (text.Length > 50000)
             {
                 text = text.Substring(0, 50000);
@@ -312,9 +311,9 @@ namespace TaxonClassifierLib
                 }
 
                 // Return only the first class found by position.
-
                 if (returnOnlyFirstClassFoundByPosition != 0)
                 {
+                    // TODO: Loop through the classes by position of the first term by position in text. Return only the first encountered class.
                     /*
                                     firstClassID = "";
                                     firstClassPosition = 999999999;
@@ -465,8 +464,6 @@ namespace TaxonClassifierLib
             // First split the text into sentences
             // A sentence is a string of text ending with either .!?
 
-            //            Debug.WriteLine("300 - new");
-
             JObject sentences = new JObject();
 
             switch (analysisMethod)
@@ -476,7 +473,8 @@ namespace TaxonClassifierLib
                     sentences["standard"] = text;
 
                     break;
-                /*
+
+                /* This was a test. It is really slow.
                         case "sentenceCentric":
                             if((preg_match_all("/([^\.\!\?]+)/u", $text, $matches)))
                             {
@@ -500,19 +498,13 @@ namespace TaxonClassifierLib
             {
                 string sentence = sentence_obj.Value.ToString();
 
-                //                sw.Restart();
-
                 sentence = " " + sentence.Trim() + " ";
                 // Note: passed by reference
                 getClassesAndTerms(sentence, taxonomy_lookup, ref classes_sentence, required, requiredOr, grammar);
 
-                //                sw.Restart();
-
                 //	Step 2: Clean up terms.
                 // Note: $classes is passed by reference
                 cleanupTerms(ref classes_sentence);
-
-                //                sw.Restart();
 
                 //	Step 3: Check the require and exclude conditions.
                 // Note: $classes, $taxonomy_lookup, $text are passed by reference
@@ -521,13 +513,9 @@ namespace TaxonClassifierLib
                     applyTermConstraints(ref classes_sentence, taxonomy_lookup, classification_method, required, requiredOr, sentence);
                 }
 
-                //                sw.Restart();
-
                 //	Step 4: Clean up classes.
                 // Note: $classes is passed by reference
                 cleanupClasses(ref classes_sentence);
-
-                //                sw.Restart();
 
                 //	Step 5: Check the require and exclude conditions.
                 // Note: $classes is passed by reference
@@ -536,9 +524,6 @@ namespace TaxonClassifierLib
                     applyClassConstraints(ref classes_sentence, sentence);
                 }
 
-                //                sw.Restart();
-
-                // Array union
                 foreach (JProperty classid_obj in (JToken)classes_sentence)
                 {
                     string classid = classid_obj.Name.ToString();
@@ -546,8 +531,6 @@ namespace TaxonClassifierLib
 
                     classes[classid] = tclass;
                 }
-
-                //                sw.Restart();
             }
 
             return classes;
@@ -623,10 +606,8 @@ namespace TaxonClassifierLib
                 else
                 {
                     // Simple text search for the term in the text
-                    // $text and $term_title must be lowercase.
-
+                    // text and term_title must be lowercase.
                     if (text.Contains(term_title))
-                    //                        if (text.IndexOf(term_title) >= 0)
                     {
                         string term_prefix = term["p"].ToString() != "" ? "(" + term["p"].ToString().ToLower() + ")?" : "";
                         string term_suffix = term["s"].ToString() != "" ? "(" + term["s"].ToString().ToLower() + ")?" : "";
@@ -641,9 +622,6 @@ namespace TaxonClassifierLib
                         continue;
                     }
                 }
-
-                //                Debug.WriteLine("t20 " + sw.ElapsedMilliseconds);
-                //                sw.Restart();
 
                 // Does the exact term exists in the text? Get all occurences
                 MatchCollection matches = Regex.Matches(text, matching_exp);
@@ -723,6 +701,7 @@ namespace TaxonClassifierLib
                             classes[classid]["terms"][term_title]["hits"][hit_term_title] = 1;
                         }
 
+                        // TODO: When a regexp has no hits the term is removed from the result
 
                         /*
                                                 // A regexp with no matches the hits property is not sat
@@ -747,44 +726,42 @@ namespace TaxonClassifierLib
                         classes[classid]["terms"][term_title]["forceSuperClass"] = term_info["fsc"];
                     }
                 }
-
-                //                Debug.WriteLine("t30 " + sw.ElapsedMilliseconds);
-                //                sw.Restart();
             }
         }
 
         private static void cleanupTerms(ref JObject classes)
         {
-            //	Remove terms that are substrings of other terms.
+            //	TODO: Remove terms that are substrings of other terms.
             //	
-            //	This is the slow but easy way to do it.
-            bool removeSubTerms = false;
-
             /*
-                        if ($removeSubTerms == true)
+
+                //	This is the slow but easy way to do it.
+                bool removeSubTerms = false;
+
+                if ($removeSubTerms == true)
+                {
+                    foreach ($classes as $classid => $class)
+                    {
+                        foreach ($class['terms'] as $termtitle => $term)
                         {
-                            foreach ($classes as $classid => $class)
+                            foreach ($classes as $classid2 => $class2)
                             {
-                                foreach ($class['terms'] as $termtitle => $term)
+                                foreach ($class2['terms'] as $termtitle2 => $term2)
                                 {
-                                    foreach ($classes as $classid2 => $class2)
+                                    // Make a fast and simple check
+                                    if(mb_strlen($termtitle) > mb_strlen($termtitle2))
                                     {
-                                        foreach ($class2['terms'] as $termtitle2 => $term2)
+                                        // Make the slower and accurate check
+                                        if((preg_match("/^$termtitle2\W/iu", $termtitle, $matches)) || (preg_match("/\W$termtitle2\W/iu", $termtitle, $matches)) || (preg_match("/\W$termtitle2$/iu", $termtitle, $matches)))
                                         {
-                                            // Make a fast and simple check
-                                            if(mb_strlen($termtitle) > mb_strlen($termtitle2))
-                                            {
-                                                // Make the slower and accurate check
-                                                if((preg_match("/^$termtitle2\W/iu", $termtitle, $matches)) || (preg_match("/\W$termtitle2\W/iu", $termtitle, $matches)) || (preg_match("/\W$termtitle2$/iu", $termtitle, $matches)))
-                                                {
-                                                    unset($classes[$classid2]['terms'][$termtitle2]);
-                                                }
-                                            }
+                                            unset($classes[$classid2]['terms'][$termtitle2]);
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+                }
             */
         }
 
@@ -819,7 +796,6 @@ namespace TaxonClassifierLib
                     //	
                     //	So we loop if a term is removed to allow the other terms to check constraints
                     //	again.
-
                     bool term_removed = true;
                     int term_max_loops = tclass["terms"].Count<JToken>();
 
@@ -1364,7 +1340,6 @@ namespace TaxonClassifierLib
                         }
 
                         //	Check whether the terms in the class score high enough
-                        //                        if (((score_count < Int32.Parse(tclass["thresholdCount"].ToString())) || (score_weight < Int32.Parse(tclass["thresholdWeight"].ToString()))) && (class_removed == false))
                         if ((score_count < Int32.Parse(tclass["thresholdCount"].ToString())) || (score_weight < Int32.Parse(tclass["thresholdWeight"].ToString())))
                         {
                             remove_classids.Add(classid);
@@ -1379,7 +1354,6 @@ namespace TaxonClassifierLib
                         //	Check whether the unique terms in the class score high enough
                         int score_count_unique = score_count_uniques.Count;
 
-                        //                        if ((score_count_unique < Int32.Parse(tclass["thresholdCountUnique"].ToString())) && (class_removed == false))
                         if ((score_count_unique < Int32.Parse(tclass["thresholdCountUnique"].ToString())))
                         {
                             remove_classids.Add(classid);
@@ -1390,22 +1364,6 @@ namespace TaxonClassifierLib
                             // Skip to the next class id
                             continue;
                         }
-                        /*
-                                                //	Check whether the terms with the required flag set are present
-                                                if(required_terms[classid] != null))
-                                                {
-                                                    foreach($required_terms[$classid] as $term_title => $term)
-                                                    {
-                                                        if( ! in_array($term_title, array_keys($classes[$classid]['terms'])))
-                                                        {
-                                                            unset($classes[$classid]);
-
-                                                            // We removed a class so force another check				
-                                                            $class_removed = 1;
-                                                        }
-                                                    }
-                                                }
-                        */
                     }
                 }
 
@@ -1441,7 +1399,6 @@ namespace TaxonClassifierLib
                 classes.Remove(key);
             }
         }
-
 
         private static void applyClassConstraints(ref JObject classes, string text)
         {
@@ -1492,8 +1449,6 @@ namespace TaxonClassifierLib
                             {
                                 //	Another sibling class was found, so remove this class
                                 remove_keys.Add(cid);
-
-                                //                                break;
                             }
                         }
                     }
@@ -1637,8 +1592,6 @@ namespace TaxonClassifierLib
                             // We have 1 string
                             if (classes[requireclass_string] != null)
                             {
-                                //                            Debug.WriteLine("1450 " + classes);
-
                                 class_condition = true;
                             }
                             else
@@ -1835,7 +1788,6 @@ namespace TaxonClassifierLib
                         foreach (JProperty cid_obj in (JToken)classes)
                         {
                             string cid = cid_obj.Name.ToString();
-                            //                            JToken tclass = classes[classid];
 
                             classes[cid]["scoreFirstPositionExtraWeight"] = 0;
                         }
@@ -1957,7 +1909,7 @@ namespace TaxonClassifierLib
 
                     secondClassScore = Int32.Parse(classes[classid]["scoreTotal"].ToString());
 
-                    // We gor the first and the second score so stop looping
+                    // We goT the first and the second score so stop looping
                     break;
                 }
 
