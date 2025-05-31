@@ -20,7 +20,9 @@ where settings is a Dictionary<string, string>
    C#: Dictionary<string,string> settings = new Dictionary<string,string>();
 
 ## Demo PowerShell script
-The TaxonClassifer_Demo.ps1 is a PowerShell script for demonstrating the process of classifying a text with a taxonomy. The default taxonomy is the OS2KLE (see https://github.com/os2kle/os2kle).
+The TaxonClassiferLib_Demo.ps1 is a PowerShell script for demonstrating the process of classifying a text with a taxonomy. The default taxonomy is the OS2KLE (see https://github.com/os2kle/os2kle).
 
-### The binary TaxonClassfierLib.dll (always be careful wiht binary files!)
+Download the PowerShell script and place it in an empty folder. The script downloads all needed files and initalizes the system. Change the testtext.txt file with your own test text (in Danish).
+
+### The binary TaxonClassfierLib.dll (always be careful with binary files!)
 We provide the binary TaxonClassifierLib.dll for testing purposes. It may or may not be up to date.
