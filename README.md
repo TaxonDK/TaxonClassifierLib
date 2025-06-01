@@ -15,7 +15,7 @@ The resulting JSON string is used when calling classifyText
 
 >   string result = classifyText(text, lookupText, settings);
 
-where settings is a Dictionary<string, string>
+where settings is a Dictionary<string, string> (please see TaxonClassifierLib/The TaxonClassifierLib API.pdf)
 
 >   PowerShell: $settings = [System.Collections.Generic.Dictionary[string,string]]::new()
 
