@@ -3,8 +3,6 @@
 ## Description
 The TaxonClassifierLib is a library for classifying text. It takes a plain UTF-8 text along with a JSON string lookup taxonomy and some settings (see manual) and returns a JSON string.
 
-TaxonClassifierLib is written in C#.
-
 ## How to use
 
 First step is to convert the original taxonomy to a lookup taxonomy. It is done by calling MakeLookupTaxonomy with the original taxonomy as a JSON string.
