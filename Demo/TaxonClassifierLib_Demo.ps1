@@ -10,7 +10,7 @@ if(-not(Test-Path -Path $textFile))
 {
 	Write-Output "Downloading sample text file from Github"
 	
-	$url = "https://raw.githubusercontent.com/TaxonDK/TaxonClassifierLib/refs/heads/master/TaxonClassifierLib/testtext.txt?token=GHSAT0AAAAAADE3PIQAKYKSW5OKYHYCNPMO2B27ULQ"
+	$url = "https://github.com/TaxonDK/TaxonClassifierLib/raw/refs/heads/master/Demo/testtext.txt"
 	
 	Invoke-WebRequest -Uri $url -OutFile $textFile
 }
@@ -21,7 +21,7 @@ if(-not(Test-Path -Path $dllFile))
 {
 	Write-Output "Downloading TaxonClassifierLib.dll from Github"
 	
-	$url = "https://github.com/TaxonDK/TaxonClassifierLib/raw/refs/heads/master/TaxonClassifierLib/TaxonClassifierLib.dll"
+	$url = "https://github.com/TaxonDK/TaxonClassifierLib/raw/refs/heads/master/Demo/TaxonClassifierLib.dll"
 	
 	Invoke-WebRequest -Uri $url -OutFile $dllFile
 }
