@@ -35,7 +35,7 @@ try
 catch
 {
 	Write-Output "Failed loading .dll."
-	Write-Output "You probably need some sort of admin execution privileges. Try using the POwerShell prompt."
+	Write-Output "You probably need some sort of admin execution privileges. Try using the PowerShell prompt."
 	Write-Output "Otherwise consult your IT department."
 	Write-Output " "
 
