@@ -26,9 +26,23 @@ if(-not(Test-Path -Path $dllFile))
 	Invoke-WebRequest -Uri $url -OutFile $dllFile
 }
 
-$taxonClassifier = [System.Reflection.Assembly]::LoadFrom($dllFile)
+try
+{
+	$taxonClassifier = [System.Reflection.Assembly]::LoadFrom($dllFile)
 
-$types = $taxonClassifier.GetTypes()
+	$types = $taxonClassifier.GetTypes()
+}
+catch
+{
+	Write-Output "Failed loading .dll."
+	Write-Output "You probably need some sort of admin execution privileges. Try using the POwerShell prompt."
+	Write-Output "Otherwise consult your IT department."
+	Write-Output " "
+
+	Read-Host "Press Enter to close script"	
+	
+	exit
+}
 
 $classify = $types[0].GetMethod("classifyText")
 $makeLookup = $types[1].GetMethod("makeLookupTaxonomy")
@@ -65,3 +79,4 @@ $result = $classify.Invoke($null, @($text.ToString(), $taxonomy_lookupJSON.ToStr
 
 Write-Output $result.ToString()
 
+Read-Host "Press Enter to close script"
